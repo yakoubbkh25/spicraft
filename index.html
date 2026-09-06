@@ -221,6 +221,18 @@
   .field-box button:hover{background:#3a3a3a;}
 
   /* toast */
+  #credit{
+    position:fixed;
+    bottom:8px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:11px;
+    color:rgba(255,255,255,0.35);
+    z-index:2;
+    font-family:system-ui,-apple-system,sans-serif;
+    pointer-events:none;
+  }
+
   #toast{
     position:fixed;
     bottom:28px;left:50%;
@@ -446,6 +458,8 @@ function showHome(){
   window.scrollTo(0,0);
 }
 </script>
+
+<div id="credit">developed by yakoubbkh</div>
 
 </body>
 </html>
