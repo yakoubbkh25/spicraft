@@ -9,14 +9,92 @@
   body{
     margin:0;
     min-height:100vh;
-    background:#0a0a0a;
+    background:#050608;
     font-family:system-ui,-apple-system,sans-serif;
     display:flex;
     align-items:center;
     justify-content:center;
     padding:40px 20px;
+    position:relative;
+    overflow-x:hidden;
   }
-  .view{width:100%;max-width:920px;}
+
+  /* animated background scene */
+  #bgScene{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    overflow:hidden;
+    background:linear-gradient(180deg,#050608 0%,#0d1420 55%,#0f1a12 100%);
+  }
+  #bgScene .stars{
+    position:absolute;top:0;left:0;width:200%;height:60%;
+    background-image:
+      radial-gradient(1.5px 1.5px at 20px 30px, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 140px 80px, #fff, transparent),
+      radial-gradient(1px 1px at 90px 150px, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 260px 60px, #fff, transparent),
+      radial-gradient(1px 1px at 320px 140px, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 400px 40px, #fff, transparent),
+      radial-gradient(1px 1px at 470px 110px, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 540px 20px, #fff, transparent);
+    background-repeat:repeat-x;
+    background-size:600px 200px;
+    opacity:0.55;
+    animation:twinkle 4s ease-in-out infinite alternate, driftStars 240s linear infinite;
+  }
+  @keyframes twinkle{from{opacity:0.35;}to{opacity:0.7;}}
+  @keyframes driftStars{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+  #bgScene .moon{
+    position:absolute;top:8%;right:12%;
+    width:54px;height:54px;
+    background:#f3edd6;
+    box-shadow:0 0 0 10px rgba(243,237,214,0.08);
+  }
+
+  #bgScene .hillsFar,#bgScene .hillsNear{
+    position:absolute;bottom:0;left:0;
+    width:200%;height:32%;
+    background-repeat:repeat-x;
+  }
+  #bgScene .hillsFar{
+    height:26%;
+    background-image:repeating-linear-gradient(90deg,#16241a 0 90px, #142117 90px 180px);
+    clip-path:polygon(0 100%,0 40%,60px 30%,150px 55%,260px 20%,360px 50%,460px 15%,560px 45%,660px 100%,
+                       660px 40%,720px 30%,810px 55%,920px 20%,1020px 50%,1120px 15%,1220px 45%,1320px 100%);
+    animation:driftFar 90s linear infinite;
+    opacity:0.9;
+  }
+  #bgScene .hillsNear{
+    height:20%;
+    background:#0d1811;
+    clip-path:polygon(0 100%,0 60%,40px 45%,110px 70%,190px 35%,270px 65%,350px 30%,430px 60%,500px 100%,
+                       660px 100%,660px 60%,700px 45%,770px 70%,850px 35%,930px 65%,1010px 30%,1090px 60%,1160px 100%);
+    animation:driftNear 45s linear infinite;
+  }
+  @keyframes driftFar{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  @keyframes driftNear{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+  #bgScene .blocks{
+    position:absolute;inset:0;
+  }
+  #bgScene .blocks span{
+    position:absolute;
+    bottom:-30px;
+    width:14px;height:14px;
+    background:#3a6b3f;
+    border:1px solid #274d2b;
+    opacity:0.5;
+    animation:floatUp linear infinite;
+  }
+  @keyframes floatUp{
+    from{transform:translateY(0) rotate(0deg);opacity:0;}
+    10%{opacity:0.5;}
+    90%{opacity:0.5;}
+    to{transform:translateY(-110vh) rotate(90deg);opacity:0;}
+  }
+  .view{width:100%;max-width:920px;position:relative;z-index:1;}
   #rulesView{display:none;color:#fff;}
 
   .grid{
@@ -227,6 +305,14 @@
 </head>
 <body>
 
+<div id="bgScene">
+  <div class="stars"></div>
+  <div class="moon"></div>
+  <div class="hillsFar"></div>
+  <div class="hillsNear"></div>
+  <div class="blocks" id="floatBlocks"></div>
+</div>
+
 <div class="view" id="homeView">
   <div class="grid">
 
@@ -324,6 +410,25 @@
 <div id="toast">Copied!</div>
 
 <script>
+(function(){
+  const wrap = document.getElementById('floatBlocks');
+  const colors = ['#3a6b3f','#5b4632','#8a897e','#274d2b'];
+  const count = 18;
+  for(let i=0;i<count;i++){
+    const b = document.createElement('span');
+    b.style.left = (Math.random()*100)+'%';
+    b.style.background = colors[i % colors.length];
+    const dur = 14 + Math.random()*16;
+    const delay = Math.random()*20;
+    b.style.animationDuration = dur+'s';
+    b.style.animationDelay = '-'+delay+'s';
+    const size = 8 + Math.random()*10;
+    b.style.width = size+'px';
+    b.style.height = size+'px';
+    wrap.appendChild(b);
+  }
+})();
+
 function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;
