@@ -158,73 +158,6 @@
   .player-chip img{width:16px;height:16px;border-radius:3px;}
   .player-empty{font-size:13.5px;color:#777;}
 
-  /* Player of the Week */
-  .potw{
-    margin-top:16px;
-    background:linear-gradient(135deg,#2a2410,#1c1c1c 60%);
-    border:1px solid #3a331a;
-    border-radius:14px;
-    padding:20px 22px;
-    display:flex;
-    align-items:center;
-    gap:18px;
-    color:#fff;
-    position:relative;
-  }
-  .potw-crown{font-size:26px;flex-shrink:0;}
-  .potw-avatar{
-    width:56px;height:56px;
-    border-radius:8px;
-    image-rendering:pixelated;
-    flex-shrink:0;
-    border:2px solid #e8c355;
-  }
-  .potw-info{flex:1;min-width:0;}
-  .potw-label{font-size:12px;color:#e8c355;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:2px;}
-  .potw-name{font-size:19px;font-weight:800;}
-  .potw-stat{font-size:13px;color:#b8b8b8;margin-top:2px;}
-  @media (max-width:480px){
-    .potw{flex-wrap:wrap;}
-  }
-  .potw-edit-btn{
-    position:absolute;
-    top:10px;right:10px;
-    background:rgba(255,255,255,0.08);
-    border:none;
-    color:#e8c355;
-    font-size:15px;
-    padding:6px 8px;
-    border-radius:6px;
-    cursor:pointer;
-  }
-  .potw-edit-btn:hover{background:rgba(255,255,255,0.16);}
-  .potw-edit-form{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-    flex:1;
-  }
-  .potw-edit-form input{
-    background:#0d0d0d;
-    color:#fff;
-    border:1px solid #3a331a;
-    border-radius:6px;
-    padding:8px 10px;
-    font-size:14px;
-    font-family:inherit;
-  }
-  .potw-edit-form button{
-    align-self:flex-start;
-    background:#e8c355;
-    color:#1c1c1c;
-    border:none;
-    border-radius:6px;
-    padding:7px 14px;
-    font-weight:700;
-    font-size:13px;
-    cursor:pointer;
-  }
-
   /* Owner login */
   .owner-bar{
     display:flex;
@@ -673,22 +606,6 @@
     </div>
 
   </div>
-
-  <!--
-    PLAYER OF THE WEEK — edit manually each week:
-    1. Change "Notch" (in two places below) to the real Minecraft username
-    2. Change "32 hours" to the real playtime
-  -->
-  <div class="potw" id="potwCard">
-    <button class="potw-edit-btn" id="potwEditBtn" onclick="editPotw()" style="display:none;">✏️ Edit</button>
-    <div class="potw-crown">👑</div>
-    <img class="potw-avatar" id="potwAvatar" src="https://mc-heads.net/avatar/Notch/128" alt="Player of the Week avatar">
-    <div class="potw-info" id="potwInfo">
-      <div class="potw-label">Player of the Week</div>
-      <div class="potw-name" id="potwName">Notch</div>
-      <div class="potw-stat" id="potwStat">32 hours played this week</div>
-    </div>
-  </div>
 </div>
 
 <div class="view" id="loginView">
@@ -974,96 +891,19 @@ function isOwner(){
 
 function updateOwnerUI(){
   const bar = document.getElementById('ownerBar');
-  const editBtn = document.getElementById('potwEditBtn');
   const username = localStorage.getItem('spi_username');
 
   if(username){
     const label = isOwner() ? username + ' (owner)' : username;
     const avatarUrl = 'https://mc-heads.net/avatar/' + encodeURIComponent(username) + '/32';
     bar.innerHTML = '<img class="owner-avatar" src="'+avatarUrl+'" alt=""><span style="color:#8a8a8a;font-size:13px;margin-right:10px;">Logged in as ' + label + '</span><button class="owner-link" onclick="logout()"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Log out</button>';
-    editBtn.style.display = isOwner() ? 'inline-block' : 'none';
   } else {
     bar.innerHTML = '<button class="owner-link" onclick="showLogin()"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>Login</button>';
-    editBtn.style.display = 'none';
   }
-}
-
-const POTW_BIN_ID = '6a9e8d65ffd5d16053e8ca42';
-const POTW_API_KEY = '$2a$10$hFHSGn1Yu.PsjHV9.Il/meMtG3PLsOzctefNUj0g7qoGClCldWF2u';
-const POTW_GET_URL = 'https://api.jsonbin.io/v3/b/' + POTW_BIN_ID + '/latest';
-const POTW_PUT_URL = 'https://api.jsonbin.io/v3/b/' + POTW_BIN_ID;
-
-function loadPotw(){
-  fetch(POTW_GET_URL + '?meta=false')
-  .then(r => {
-    if(!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
-  })
-  .then(data => {
-    // meta=false makes JSONBin return the record directly (no .record wrapper)
-    const record = data.record || data;
-    if(record.name){
-      document.getElementById('potwName').textContent = record.name;
-      document.getElementById('potwAvatar').src = 'https://mc-heads.net/avatar/' + encodeURIComponent(record.name) + '/128';
-    }
-    if(record.hours){
-      document.getElementById('potwStat').textContent = record.hours + ' hours played this week';
-    }
-  })
-  .catch((err) => {
-    console.warn('Player of the Week fetch failed:', err);
-    // if the cloud fetch fails, the default placeholder in the HTML stays visible
-  });
-}
-
-function editPotw(){
-  if(!isOwner()) return;
-  const info = document.getElementById('potwInfo');
-  const currentName = document.getElementById('potwName').textContent;
-  const currentHours = document.getElementById('potwStat').textContent.match(/\d+/);
-  const hoursVal = currentHours ? currentHours[0] : '';
-
-  info.innerHTML =
-    '<div class="potw-edit-form">' +
-      '<input type="text" id="potwNameInput" placeholder="Minecraft username" value="'+currentName+'">' +
-      '<input type="number" id="potwHoursInput" placeholder="Hours played" value="'+hoursVal+'">' +
-      '<button onclick="savePotw()">Save</button>' +
-    '</div>';
-}
-
-function savePotw(){
-  const name = document.getElementById('potwNameInput').value.trim();
-  const hours = document.getElementById('potwHoursInput').value.trim();
-  if(!name || !hours){ showToast('Fill in both fields'); return; }
-
-  showToast('Saving...');
-
-  fetch(POTW_PUT_URL, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Master-Key': POTW_API_KEY
-    },
-    body: JSON.stringify({ name: name, hours: hours })
-  })
-  .then(r => r.json())
-  .then(() => {
-    const info = document.getElementById('potwInfo');
-    info.innerHTML =
-      '<div class="potw-label">Player of the Week</div>' +
-      '<div class="potw-name" id="potwName">'+name+'</div>' +
-      '<div class="potw-stat" id="potwStat">'+hours+' hours played this week</div>';
-    document.getElementById('potwAvatar').src = 'https://mc-heads.net/avatar/' + encodeURIComponent(name) + '/128';
-    showToast('Saved! Now visible to everyone');
-  })
-  .catch(() => {
-    showToast('Failed to save, try again');
-  });
 }
 
 // initialize on load
 updateOwnerUI();
-loadPotw();
 
 function showAchievement(){
   const el = document.getElementById('achievement');
